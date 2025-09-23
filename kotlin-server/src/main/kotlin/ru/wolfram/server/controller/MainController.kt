@@ -50,7 +50,7 @@ class MainController {
     ): ResponseEntity<GameCreationResult> {
         if (!users.contains(name) || userToKey[name] != key) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(GameCreationResult.Failure("User doesn't exist or key is invalid!"))
+                .body(GameCreationResult.Failure("User does not exist or key is invalid!"))
         }
         return ResponseEntity.ok(GameCreationResult.GameKey(Uuid.random().toString()))
     }

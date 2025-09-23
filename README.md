@@ -1,1 +1,1 @@
-# multiplatform-tic-tac-toe
+# multiplatform-games
