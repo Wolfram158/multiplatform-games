@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*
 import ru.wolfram.server.model.GameCreationResult
 import ru.wolfram.server.model.UserCreationResult
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.locks.ReentrantLock
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -15,6 +16,39 @@ import kotlin.uuid.Uuid
 class MainController {
     private val users = ConcurrentHashMap.newKeySet<String>()
     private val userToKey = ConcurrentHashMap<String, String>()
+    private val pending = object {
+        private val lock = ReentrantLock()
+        private val users = mutableListOf<String>()
+        private var key = ""
+
+        fun getKeyOrNull(name: String): String? {
+            lock.lock()
+            if (users.size == 2) {
+                return if (name !in users) {
+                    lock.unlock()
+                    null
+                } else {
+                    key.also {
+                        key = ""
+                        users.clear()
+                        lock.unlock()
+                    }
+                }
+            }
+            if (name in users) {
+                lock.unlock()
+                return null
+            }
+            users.add(name)
+            if (users.size == 1) {
+                lock.unlock()
+                return null
+            } else {
+                key = Uuid.random().toString()
+                return key.also { lock.unlock() }
+            }
+        }
+    }
 
     @PostMapping("/enter")
     fun addUser(@RequestParam name: String): ResponseEntity<UserCreationResult> {
@@ -34,8 +68,8 @@ class MainController {
         @RequestParam key: String
     ): ResponseEntity<String> {
         if (users.contains(name) && userToKey[name] == key) {
-            users.remove(name)
             userToKey.remove(name)
+            users.remove(name)
             return ResponseEntity.ok("User has been removed successfully!")
         }
         return ResponseEntity
@@ -53,5 +87,21 @@ class MainController {
                 .body(GameCreationResult.Failure("User does not exist or key is invalid!"))
         }
         return ResponseEntity.ok(GameCreationResult.GameKey(Uuid.random().toString()))
+    }
+
+    @GetMapping("/random-tic-tac-toe")
+    fun randomTicTacToe(
+        @RequestParam name: String,
+        @RequestParam key: String
+    ): ResponseEntity<GameCreationResult> {
+        if (!users.contains(name) || userToKey[name] != key) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(GameCreationResult.Failure("User does not exist or key is invalid!"))
+        }
+        while (true) {
+            pending.getKeyOrNull(name)?.let {
+                return@randomTicTacToe ResponseEntity.ok(GameCreationResult.GameKey(it))
+            }
+        }
     }
 }

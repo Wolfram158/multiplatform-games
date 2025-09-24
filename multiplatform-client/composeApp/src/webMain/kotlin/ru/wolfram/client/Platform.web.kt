@@ -3,11 +3,6 @@ package ru.wolfram.client
 import io.ktor.client.engine.HttpClientEngine
 import kotlinx.coroutines.CoroutineDispatcher
 
-class WasmPlatform: Platform {
-    override val name: String = "Web with Kotlin/Wasm"
-}
-
-actual fun getPlatform(): Platform = WasmPlatform()
 actual val baseHttpUrl: String
     get() = TODO("Not yet implemented")
 actual val baseWsUrl: String
