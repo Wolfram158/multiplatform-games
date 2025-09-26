@@ -9,7 +9,9 @@ fun initKoin(config: KoinAppDeclaration? = null) {
         config?.invoke(this)
         modules(
             AppModule().module,
-            AuthModule().module
+            AuthModule().module,
+            GamesModule().module,
+            TicTacToeModule().module
         )
     }
 }

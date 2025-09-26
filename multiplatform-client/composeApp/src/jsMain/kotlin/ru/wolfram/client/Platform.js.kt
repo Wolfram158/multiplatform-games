@@ -10,7 +10,7 @@ class JsPlatform: Platform {
 actual fun getPlatform(): Platform = JsPlatform()
 actual val baseHttpUrl: String
     get() = TODO("Not yet implemented")
-actual val baseWsUrl: String
+actual val wsHost: String
     get() = TODO("Not yet implemented")
 
 actual class HttpClientEngineFactory {
@@ -24,3 +24,6 @@ actual class DispatcherIO actual constructor() {
         TODO("Not yet implemented")
     }
 }
+
+actual val wsPort: Int
+    get() = TODO("Not yet implemented")

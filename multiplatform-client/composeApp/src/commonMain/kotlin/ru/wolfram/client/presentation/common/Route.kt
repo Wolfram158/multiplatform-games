@@ -7,5 +7,8 @@ sealed interface Route {
     object Auth : Route
 
     @Serializable
-    object Games : Route
+    data class Games(val name: String, val key: String) : Route
+
+    @Serializable
+    data class TicTacToe(val name: String, val key: String) : Route
 }

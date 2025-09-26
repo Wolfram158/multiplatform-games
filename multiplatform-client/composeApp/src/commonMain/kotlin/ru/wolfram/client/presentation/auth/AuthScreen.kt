@@ -23,25 +23,27 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import ru.wolfram.client.domain.model.common.UserCreationResult
+import ru.wolfram.client.domain.auth.model.UserCreationResult
 
 @Composable
 fun AuthScreen(
     authViewModel: AuthViewModel,
-    onSuccess: () -> Unit
+    onSuccess: (String, String) -> Unit
 ) {
     val auth = authViewModel.authState.collectAsStateWithLifecycle()
     val name = remember { mutableStateOf("") }
 
-    when (auth.value) {
+    when (val res = auth.value) {
         is UserCreationResult.Failure -> {
             name.value = "Failure!"
         }
 
         UserCreationResult.Initial -> {}
         is UserCreationResult.UserKey -> {
-            onSuccess()
+            onSuccess(name.value, res.key)
         }
+
+        UserCreationResult.Progress -> {}
     }
 
     Box(
@@ -62,6 +64,7 @@ fun AuthScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 16.dp, end = 16.dp),
+                enabled = auth.value !is UserCreationResult.Progress && auth.value !is UserCreationResult.UserKey,
                 placeholder = {
                     Text(text = "Enter name")
                 },
@@ -70,9 +73,10 @@ fun AuthScreen(
             Spacer(modifier = Modifier.height(24.dp))
             Button(
                 onClick = {
-                    authViewModel.auth(name.value)
+                    authViewModel.handleAction(AuthAction.Auth(name.value))
                 },
-                modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp)
+                modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp),
+                enabled = auth.value !is UserCreationResult.Progress && auth.value !is UserCreationResult.UserKey
             ) {
                 Text(text = "Enter", fontSize = 20.sp, textAlign = TextAlign.Center)
             }

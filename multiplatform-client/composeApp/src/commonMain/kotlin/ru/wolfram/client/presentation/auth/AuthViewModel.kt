@@ -8,20 +8,31 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.wolfram.client.domain.auth.usecase.AuthUseCase
-import ru.wolfram.client.domain.model.common.UserCreationResult
+import ru.wolfram.client.domain.auth.model.UserCreationResult
+import ru.wolfram.client.presentation.common.ActionHandler
 
 class AuthViewModel(
     private val authUseCase: AuthUseCase,
     private val ioDispatcher: CoroutineDispatcher
-) : ViewModel() {
+) : ActionHandler<AuthAction>, ViewModel() {
     private val _authState = MutableStateFlow<UserCreationResult>(UserCreationResult.Initial)
     val authState = _authState.asStateFlow()
 
-    fun auth(name: String) {
+    override fun handleAction(action: AuthAction) {
+        when (action) {
+            is AuthAction.Auth -> reduceAuth(action)
+        }
+    }
+
+    private fun reduceAuth(action: AuthAction.Auth) {
         viewModelScope.launch(ioDispatcher) {
             _authState.update {
-                authUseCase(name)
+                UserCreationResult.Progress
+            }
+            _authState.update {
+                authUseCase(action.name)
             }
         }
     }
+
 }

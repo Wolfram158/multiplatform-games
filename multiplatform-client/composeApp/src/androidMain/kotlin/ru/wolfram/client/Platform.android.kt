@@ -15,8 +15,8 @@ actual fun getPlatform(): Platform = AndroidPlatform()
 actual val baseHttpUrl: String
     get() = "http://10.0.2.2:8080/api/v1"
 
-actual val baseWsUrl: String
-    get() = "ws://10.0.2.2:8080/tic-tac-toe"
+actual val wsHost: String
+    get() = "localhost"
 
 actual class HttpClientEngineFactory {
     actual fun getHttpClientEngine(): HttpClientEngine {
@@ -29,3 +29,6 @@ actual class DispatcherIO actual constructor() {
         return Dispatchers.IO
     }
 }
+
+actual val wsPort: Int
+    get() = 8080

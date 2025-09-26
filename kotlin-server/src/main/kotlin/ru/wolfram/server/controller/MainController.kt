@@ -3,7 +3,9 @@ package ru.wolfram.server.controller
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import ru.wolfram.server.model.Game
 import ru.wolfram.server.model.GameCreationResult
+import ru.wolfram.server.model.Label
 import ru.wolfram.server.model.UserCreationResult
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.locks.ReentrantLock
@@ -12,7 +14,7 @@ import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping(MainController.PREFIX)
 class MainController {
     private val users = ConcurrentHashMap.newKeySet<String>()
     private val userToKey = ConcurrentHashMap<String, String>()
@@ -51,15 +53,24 @@ class MainController {
     }
 
     @PostMapping("/enter")
-    fun addUser(@RequestParam name: String): ResponseEntity<UserCreationResult> {
+    fun addUser(
+        @RequestParam name: String,
+        @RequestParam(required = false, defaultValue = "en") lang: String
+    ): ResponseEntity<UserCreationResult> {
         if (users.add(name)) {
             val key = Uuid.random().toString()
             userToKey[name] = key
-            return ResponseEntity.ok(UserCreationResult.UserKey(key))
+            return ResponseEntity.ok(UserCreationResult.UserKey(name, key))
         }
-        return ResponseEntity
-            .status(HttpStatus.UNAUTHORIZED)
-            .body(UserCreationResult.Failure("User already exists"))
+        return if (lang != "ru") {
+            ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(UserCreationResult.Failure("User already exists!"))
+        } else {
+            ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(UserCreationResult.Failure("Пользователь с таким именем уже существует!"))
+        }
     }
 
     @PostMapping("/leave")
@@ -77,7 +88,7 @@ class MainController {
             .body("Key is invalid or user does not exist!")
     }
 
-    @GetMapping("/new-tic-tac-toe")
+    @GetMapping(NEW_TIC_TAC_TOE)
     fun newTicTacToe(
         @RequestParam name: String,
         @RequestParam key: String
@@ -86,10 +97,10 @@ class MainController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(GameCreationResult.Failure("User does not exist or key is invalid!"))
         }
-        return ResponseEntity.ok(GameCreationResult.GameKey(Uuid.random().toString()))
+        return ResponseEntity.ok(GameCreationResult.GameKey(name, Uuid.random().toString()))
     }
 
-    @GetMapping("/random-tic-tac-toe")
+    @GetMapping(RANDOM_TIC_TAC_TOE)
     fun randomTicTacToe(
         @RequestParam name: String,
         @RequestParam key: String
@@ -100,8 +111,50 @@ class MainController {
         }
         while (true) {
             pending.getKeyOrNull(name)?.let {
-                return@randomTicTacToe ResponseEntity.ok(GameCreationResult.GameKey(it))
+                return@randomTicTacToe ResponseEntity.ok(GameCreationResult.GameKey(name, it))
             }
         }
+    }
+
+    @GetMapping("/games")
+    fun getGames(
+        @RequestParam name: String,
+        @RequestParam key: String,
+        @RequestParam(required = false, defaultValue = "en") lang: String
+    ): ResponseEntity<List<Game>> {
+        if (!users.contains(name) || userToKey[name] != key) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(listOf())
+        }
+        return when (lang.lowercase()) {
+            "ru" -> ResponseEntity.ok(
+                listOf(
+                    Game(
+                        name = "Крестики-нулики",
+                        randomUrl = "$BASE_URL$RANDOM_TIC_TAC_TOE",
+                        createUrl = "$BASE_URL$NEW_TIC_TAC_TOE",
+                        label = Label.TIC_TAC_TOE
+                    ),
+                )
+            )
+
+            else -> ResponseEntity.ok(
+                listOf(
+                    Game(
+                        name = "Tic-tac-toe",
+                        randomUrl = "$BASE_URL$RANDOM_TIC_TAC_TOE",
+                        createUrl = "$BASE_URL$NEW_TIC_TAC_TOE",
+                        label = Label.TIC_TAC_TOE
+                    ),
+                )
+            )
+        }
+    }
+
+    companion object {
+        const val PREFIX = "/api/v1"
+        const val BASE_URL = "http://localhost:8080$PREFIX"
+        const val NEW_TIC_TAC_TOE = "/new-tic-tac-toe"
+        const val RANDOM_TIC_TAC_TOE = "/random-tic-tac-toe"
     }
 }

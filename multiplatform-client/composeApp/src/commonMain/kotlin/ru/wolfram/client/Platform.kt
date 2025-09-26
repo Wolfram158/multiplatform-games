@@ -11,7 +11,9 @@ expect fun getPlatform(): Platform
 
 expect val baseHttpUrl: String
 
-expect val baseWsUrl: String
+expect val wsHost: String
+
+expect val wsPort: Int
 
 expect class HttpClientEngineFactory() {
     fun getHttpClientEngine(): HttpClientEngine
