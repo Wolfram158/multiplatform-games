@@ -1,5 +1,8 @@
 package ru.wolfram.server.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class TicTacToeState(
     val state: State = State.PROGRESS,
     val winner: String? = null,

@@ -2,8 +2,6 @@ package ru.wolfram.server.component
 
 import com.google.gson.Gson
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.polymorphic
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.CloseStatus
 import org.springframework.web.socket.TextMessage
@@ -21,13 +19,7 @@ import kotlin.uuid.Uuid
 class TicTacToeWebSocketHandler : TextWebSocketHandler() {
     private val gson = Gson()
     private val kotlinxJson = Json {
-        classDiscriminator = "type"
-        serializersModule = SerializersModule {
-            polymorphic(Message::class) {
-                subclass(Message.Move::class, Message.Move.serializer())
-                subclass(Message.FirstMessage::class, Message.FirstMessage.serializer())
-            }
-        }
+        ignoreUnknownKeys = true
     }
     private val pathToUsersCount = HashMap<String, Int>()
     private val pathToSessions = HashMap<String, Set<WebSocketSession>>()
@@ -146,7 +138,7 @@ class TicTacToeWebSocketHandler : TextWebSocketHandler() {
         if (state.state != State.PROGRESS ||
             move.x !in 0..2 ||
             move.y !in 0..2 ||
-            state.cells[move.x][move.y] != Cell.EMPTY ||
+            state.cells[move.y][move.x] != Cell.EMPTY ||
             !isKeyValid(path, state.whoseMove, move.key)
         ) {
             throw RulesViolationException()

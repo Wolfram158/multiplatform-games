@@ -7,8 +7,8 @@ import ru.wolfram.server.model.Game
 import ru.wolfram.server.model.GameCreationResult
 import ru.wolfram.server.model.Label
 import ru.wolfram.server.model.UserCreationResult
+import ru.wolfram.server.service.Pending
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.locks.ReentrantLock
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -18,41 +18,9 @@ import kotlin.uuid.Uuid
 class MainController {
     private val users = ConcurrentHashMap.newKeySet<String>()
     private val userToKey = ConcurrentHashMap<String, String>()
-    private val pending = object {
-        private val lock = ReentrantLock()
-        private val users = mutableListOf<String>()
-        private var key = ""
+    private val pending = Pending()
 
-        fun getKeyOrNull(name: String): String? {
-            lock.lock()
-            if (users.size == 2) {
-                return if (name !in users) {
-                    lock.unlock()
-                    null
-                } else {
-                    key.also {
-                        key = ""
-                        users.clear()
-                        lock.unlock()
-                    }
-                }
-            }
-            if (name in users) {
-                lock.unlock()
-                return null
-            }
-            users.add(name)
-            if (users.size == 1) {
-                lock.unlock()
-                return null
-            } else {
-                key = Uuid.random().toString()
-                return key.also { lock.unlock() }
-            }
-        }
-    }
-
-    @PostMapping("/enter")
+    @PostMapping(ENTER)
     fun addUser(
         @RequestParam name: String,
         @RequestParam(required = false, defaultValue = "en") lang: String
@@ -73,7 +41,7 @@ class MainController {
         }
     }
 
-    @PostMapping("/leave")
+    @PostMapping(LEAVE)
     fun leaveUser(
         @RequestParam name: String,
         @RequestParam key: String
@@ -109,14 +77,10 @@ class MainController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(GameCreationResult.Failure("User does not exist or key is invalid!"))
         }
-        while (true) {
-            pending.getKeyOrNull(name)?.let {
-                return@randomTicTacToe ResponseEntity.ok(GameCreationResult.GameKey(name, it))
-            }
-        }
+        return ResponseEntity.ok(GameCreationResult.GameKey(name, pending.getKey(name)))
     }
 
-    @GetMapping("/games")
+    @GetMapping(GAMES)
     fun getGames(
         @RequestParam name: String,
         @RequestParam key: String,
@@ -156,5 +120,8 @@ class MainController {
         const val BASE_URL = "http://localhost:8080$PREFIX"
         const val NEW_TIC_TAC_TOE = "/new-tic-tac-toe"
         const val RANDOM_TIC_TAC_TOE = "/random-tic-tac-toe"
+        const val ENTER = "/enter"
+        const val GAMES = "/games"
+        const val LEAVE = "/leave"
     }
 }

@@ -12,7 +12,7 @@ import ru.wolfram.server.component.TicTacToeWebSocketHandler
 class WebSocketConfig : WebSocketConfigurer {
 
     override fun registerWebSocketHandlers(registry: WebSocketHandlerRegistry) {
-        registry.addHandler(ticTacToeWebSocketHandler(), "/tic-tac-toe/*")
+        registry.addHandler(ticTacToeWebSocketHandler(), "$TIC_TAC_TOE/*")
     }
 
     @Bean
@@ -20,4 +20,7 @@ class WebSocketConfig : WebSocketConfigurer {
         return TicTacToeWebSocketHandler()
     }
 
+    companion object {
+        const val TIC_TAC_TOE = "/tic-tac-toe"
+    }
 }
