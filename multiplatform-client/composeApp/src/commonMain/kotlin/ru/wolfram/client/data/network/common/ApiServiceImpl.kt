@@ -45,7 +45,7 @@ class ApiServiceImpl(
         desired: WhoDto,
         callback: suspend (WhoResponseState.WhoResponse, DefaultClientWebSocketSession) -> Unit
     ) {
-        val webSocket = httpClient.webSocketSession(urlString = "ws://10.0.2.2:8080") {
+        val webSocket = httpClient.webSocketSession(urlString = "ws://$wsHost:$wsPort") {
             url {
                 appendEncodedPathSegments(TIC_TAC_TOE, path)
             }

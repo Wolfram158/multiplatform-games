@@ -1,7 +1,6 @@
 package ru.wolfram.client.presentation.tic_tac_toe
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,27 +16,17 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.dp
-import ru.wolfram.client.Logger
-import ru.wolfram.client.domain.tic_tac_toe.model.TicTacToeState
-import kotlin.math.min
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TicTacToe(ticTacToeViewModel: TicTacToeViewModel, name: String, key: String) {
     val ticTacToe = ticTacToeViewModel.ticTacToe.collectAsState()
     val isMove = ticTacToeViewModel.isMove.collectAsState()
-when (val x = ticTacToe.value) {
-    else -> Logger().log("TIC_TAC_TOE", x.toString())
-}
+
     LaunchedEffect(Unit) {
         ticTacToeViewModel.handleAction(TicTacToeAction.RandomGameKey(name, key))
     }
-
-    val configuration = LocalWindowInfo.current.containerSize
-    val size = with(LocalDensity.current) { min(configuration.width, configuration.height).toDp() }
 
     Scaffold(
         topBar = {

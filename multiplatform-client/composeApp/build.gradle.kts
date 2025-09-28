@@ -39,7 +39,6 @@ kotlin {
             implementation(libs.androidx.activity.compose)
 
             implementation(libs.ktor.client.okhttp)
-            implementation(libs.ktor.client.cio)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -81,6 +80,8 @@ kotlin {
             implementation(libs.kotlinx.coroutinesSwing)
 
             implementation(libs.ktor.client.okhttp)
+
+            implementation(libs.ktor.client.cio)
         }
     }
 

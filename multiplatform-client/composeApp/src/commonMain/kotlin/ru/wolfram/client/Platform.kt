@@ -1,7 +1,5 @@
 package ru.wolfram.client
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.unit.Dp
 import io.ktor.client.engine.HttpClientEngine
 import kotlinx.coroutines.CoroutineDispatcher
 
