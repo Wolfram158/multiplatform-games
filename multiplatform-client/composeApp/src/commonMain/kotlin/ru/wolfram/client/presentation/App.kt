@@ -16,6 +16,7 @@ import ru.wolfram.client.presentation.games.GamesScreen
 import ru.wolfram.client.presentation.games.GamesViewModel
 import ru.wolfram.client.presentation.tic_tac_toe.TicTacToe
 import ru.wolfram.client.presentation.tic_tac_toe.TicTacToeViewModel
+import kotlin.jvm.JvmInline
 
 @Composable
 @Preview
@@ -61,9 +62,17 @@ fun App() {
                 val ticTacToeViewModel = koinViewModel<TicTacToeViewModel>()
 
                 TicTacToe(
-                    ticTacToeViewModel
+                    ticTacToeViewModel,
+                    session.name,
+                    session.key
                 )
             }
         }
     }
 }
+
+@JvmInline
+value class Name(val name: String)
+
+@JvmInline
+value class Key(val key: String)

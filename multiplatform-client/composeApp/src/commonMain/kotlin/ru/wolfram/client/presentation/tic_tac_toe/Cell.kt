@@ -7,7 +7,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import games.composeapp.generated.resources.Res
+import games.composeapp.generated.resources.circle
+import games.composeapp.generated.resources.close
+import org.jetbrains.compose.resources.vectorResource
 import ru.wolfram.client.domain.tic_tac_toe.model.Cell
 
 @Composable
@@ -15,7 +20,7 @@ fun Cell(
     ticTacToeViewModel: TicTacToeViewModel,
     isMove: Boolean,
     cells: List<List<Cell>>,
-    size: Int,
+    size: Dp,
     x: Int,
     y: Int
 ) {
@@ -24,19 +29,19 @@ fun Cell(
             ticTacToeViewModel.handleAction(TicTacToeAction.MakeMove(x, y))
         },
         modifier = Modifier
-            .size(size.dp)
+            .size(size)
             .border(2.dp, Color.Black),
-        enabled = isMove
+        enabled = true
     ) {
         if (cells[y][x] != Cell.EMPTY) {
             Icon(
                 imageVector = if (cells[y][x] == Cell.CROSS) {
-                    Close
+                    vectorResource(Res.drawable.close)
                 } else {
-                    Circle
+                    vectorResource(Res.drawable.circle)
                 },
                 contentDescription = null,
-                modifier = Modifier.size(size.dp)
+                modifier = Modifier.size(size)
             )
         }
     }

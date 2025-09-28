@@ -1,7 +1,7 @@
 package ru.wolfram.client.domain.tic_tac_toe.model
 
 sealed interface WhoResponseState {
-    object Initial: WhoResponseState
+    object Initial : WhoResponseState
 
     data class WhoResponse(
         val who: Who,

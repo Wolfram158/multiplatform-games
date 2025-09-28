@@ -8,10 +8,10 @@ import androidx.compose.ui.unit.dp
 
 val Close: ImageVector
     get() {
-        if (_Close != null) return _Close!!
+        if (_Close_small != null) return _Close_small!!
 
-        _Close = ImageVector.Builder(
-            name = "Close",
+        _Close_small = ImageVector.Builder(
+            name = "Close_small",
             defaultWidth = 24.dp,
             defaultHeight = 24.dp,
             viewportWidth = 960f,
@@ -20,24 +20,25 @@ val Close: ImageVector
             path(
                 fill = SolidColor(Color(0xFF000000))
             ) {
-                moveToRelative(256f, -200f)
+                moveToRelative(336f, -280f)
                 lineToRelative(-56f, -56f)
-                lineToRelative(224f, -224f)
-                lineToRelative(-224f, -224f)
+                lineToRelative(144f, -144f)
+                lineToRelative(-144f, -143f)
                 lineToRelative(56f, -56f)
-                lineToRelative(224f, 224f)
-                lineToRelative(224f, -224f)
+                lineToRelative(144f, 144f)
+                lineToRelative(143f, -144f)
                 lineToRelative(56f, 56f)
-                lineToRelative(-224f, 224f)
-                lineToRelative(224f, 224f)
+                lineToRelative(-144f, 143f)
+                lineToRelative(144f, 144f)
                 lineToRelative(-56f, 56f)
-                lineToRelative(-224f, -224f)
+                lineToRelative(-143f, -144f)
                 close()
             }
         }.build()
 
-        return _Close!!
+        return _Close_small!!
     }
 
-private var _Close: ImageVector? = null
+private var _Close_small: ImageVector? = null
+
 

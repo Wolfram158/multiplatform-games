@@ -39,6 +39,7 @@ kotlin {
             implementation(libs.androidx.activity.compose)
 
             implementation(libs.ktor.client.okhttp)
+            implementation(libs.ktor.client.cio)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -67,6 +68,10 @@ kotlin {
             implementation(libs.ktor.client.content.negotiation)
 
             implementation(libs.ktor.client.logging)
+
+            implementation(libs.ktor.client.cio)
+
+            implementation(compose.components.resources)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

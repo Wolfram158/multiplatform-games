@@ -1,5 +1,7 @@
 package ru.wolfram.client
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.Dp
 import io.ktor.client.engine.HttpClientEngine
 import kotlinx.coroutines.CoroutineDispatcher
 
@@ -21,4 +23,8 @@ expect class HttpClientEngineFactory() {
 
 expect class DispatcherIO() {
     fun getDispatcher(): CoroutineDispatcher
+}
+
+expect class Logger() {
+    fun log(tag: String, msg: String)
 }

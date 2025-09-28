@@ -1,9 +1,12 @@
 package ru.wolfram.client
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.unit.Dp
 import io.ktor.client.engine.HttpClientEngine
 import kotlinx.coroutines.CoroutineDispatcher
 
-class WasmPlatform: Platform {
+class WasmPlatform : Platform {
     override val name: String = "Web with Kotlin/Wasm"
 }
 
@@ -27,3 +30,8 @@ actual class DispatcherIO actual constructor() {
 
 actual val wsPort: Int
     get() = TODO("Not yet implemented")
+
+actual class Logger actual constructor() {
+    actual fun log(tag: String, msg: String) {
+    }
+}

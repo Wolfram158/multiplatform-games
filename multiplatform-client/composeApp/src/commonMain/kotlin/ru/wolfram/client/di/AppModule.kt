@@ -2,6 +2,7 @@ package ru.wolfram.client.di
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
@@ -26,6 +27,11 @@ class AppModule {
     fun getHttpClient(engine: HttpClientEngine, json: Json): HttpClient = HttpClient(engine) {
         install(ContentNegotiation) {
             json(json)
+        }
+        install(HttpTimeout) {
+            connectTimeoutMillis = 30000
+            socketTimeoutMillis = 30000
+            requestTimeoutMillis = 30000
         }
         install(WebSockets) {
             pingIntervalMillis = 20_000

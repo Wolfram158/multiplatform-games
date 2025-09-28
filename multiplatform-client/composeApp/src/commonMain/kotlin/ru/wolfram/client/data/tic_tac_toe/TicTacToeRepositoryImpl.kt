@@ -1,14 +1,13 @@
 package ru.wolfram.client.data.tic_tac_toe
 
+import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import ru.wolfram.client.data.mapper.toGameCreationResult
-import ru.wolfram.client.data.mapper.toTicTacToeState
 import ru.wolfram.client.data.mapper.toWhoDto
 import ru.wolfram.client.data.mapper.toWhoResponse
 import ru.wolfram.client.data.network.common.ApiService
 import ru.wolfram.client.domain.common.GameCreationResult
-import ru.wolfram.client.domain.tic_tac_toe.model.TicTacToeState
 import ru.wolfram.client.domain.tic_tac_toe.model.Who
 import ru.wolfram.client.domain.tic_tac_toe.model.WhoResponseState
 import ru.wolfram.client.domain.tic_tac_toe.repository.TicTacToeRepository
@@ -31,11 +30,20 @@ class TicTacToeRepositoryImpl(
         return apiService.handshake(name, desired.toWhoDto()).toWhoResponse()
     }
 
-    override suspend fun move(x: Int, y: Int, key: String) {
-        apiService.move(x, y, key)
+    override suspend fun move(x: Int, y: Int) {
+        apiService.move(x, y)
     }
 
-    override fun getTicTacToe(): Flow<TicTacToeState> {
-        return apiService.ticTacToe.map { it.toTicTacToeState() }
+    override suspend fun getTicTacToe(
+        name: String,
+        path: String,
+        desired: Who,
+        callback: suspend (WhoResponseState.WhoResponse, DefaultClientWebSocketSession) -> Unit
+    ) {
+        return apiService.getTicTacToe(name, path, desired.toWhoDto(), callback)
+    }
+
+    override fun getWhoResponse(): Flow<WhoResponseState.WhoResponse?> {
+        return apiService.getWhoResponse().map { it?.toWhoResponse() }
     }
 }

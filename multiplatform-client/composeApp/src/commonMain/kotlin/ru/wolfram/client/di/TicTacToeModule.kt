@@ -1,7 +1,6 @@
 package ru.wolfram.client.di
 
 import kotlinx.coroutines.CoroutineDispatcher
-import org.koin.android.annotation.KoinViewModel
 import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Module
 import ru.wolfram.client.data.network.common.ApiService
@@ -9,6 +8,7 @@ import ru.wolfram.client.data.tic_tac_toe.TicTacToeRepositoryImpl
 import ru.wolfram.client.domain.tic_tac_toe.repository.TicTacToeRepository
 import ru.wolfram.client.domain.tic_tac_toe.usecase.ConnectUseCase
 import ru.wolfram.client.domain.tic_tac_toe.usecase.GetTicTacToeUseCase
+import ru.wolfram.client.domain.tic_tac_toe.usecase.GetWhoResponseUseCase
 import ru.wolfram.client.domain.tic_tac_toe.usecase.HandshakeUseCase
 import ru.wolfram.client.domain.tic_tac_toe.usecase.MoveUseCase
 import ru.wolfram.client.domain.tic_tac_toe.usecase.RandomTicTacToeUseCase
@@ -39,13 +39,18 @@ class TicTacToeModule {
     fun getConnectUseCase(repository: TicTacToeRepository) =
         ConnectUseCase(repository)
 
-    @KoinViewModel
+    @Factory
+    fun getWhoResponseUseCase(repository: TicTacToeRepository) =
+        GetWhoResponseUseCase(repository)
+
+    @Factory
     fun getTicTacToeViewModel(
         randomTicTacToeUseCase: RandomTicTacToeUseCase,
         connectUseCase: ConnectUseCase,
         handshakeUseCase: HandshakeUseCase,
         moveUseCase: MoveUseCase,
         getTicTacToeUseCase: GetTicTacToeUseCase,
+        getWhoResponseUseCase: GetWhoResponseUseCase,
         dispatcher: CoroutineDispatcher
     ) =
         TicTacToeViewModel(
@@ -54,6 +59,7 @@ class TicTacToeModule {
             handshakeUseCase,
             moveUseCase,
             getTicTacToeUseCase,
+            getWhoResponseUseCase,
             dispatcher
         )
 }

@@ -1,6 +1,9 @@
 package ru.wolfram.client
 
 import android.os.Build
+import android.util.Log
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.Dp
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.okhttp.OkHttp
 import kotlinx.coroutines.CoroutineDispatcher
@@ -16,7 +19,7 @@ actual val baseHttpUrl: String
     get() = "http://10.0.2.2:8080/api/v1"
 
 actual val wsHost: String
-    get() = "localhost"
+    get() = "10.0.2.2"
 
 actual class HttpClientEngineFactory {
     actual fun getHttpClientEngine(): HttpClientEngine {
@@ -32,3 +35,9 @@ actual class DispatcherIO actual constructor() {
 
 actual val wsPort: Int
     get() = 8080
+
+actual class Logger actual constructor() {
+    actual fun log(tag: String, msg: String) {
+        Log.e(tag, msg)
+    }
+}
