@@ -6,10 +6,8 @@ import org.koin.core.annotation.Module
 import ru.wolfram.client.data.network.common.ApiService
 import ru.wolfram.client.data.tic_tac_toe.TicTacToeRepositoryImpl
 import ru.wolfram.client.domain.tic_tac_toe.repository.TicTacToeRepository
-import ru.wolfram.client.domain.tic_tac_toe.usecase.ConnectUseCase
 import ru.wolfram.client.domain.tic_tac_toe.usecase.GetTicTacToeUseCase
 import ru.wolfram.client.domain.tic_tac_toe.usecase.GetWhoResponseUseCase
-import ru.wolfram.client.domain.tic_tac_toe.usecase.HandshakeUseCase
 import ru.wolfram.client.domain.tic_tac_toe.usecase.MoveUseCase
 import ru.wolfram.client.domain.tic_tac_toe.usecase.RandomTicTacToeUseCase
 import ru.wolfram.client.presentation.tic_tac_toe.TicTacToeViewModel
@@ -28,16 +26,8 @@ class TicTacToeModule {
         GetTicTacToeUseCase(repository)
 
     @Factory
-    fun getHandshakeUseCase(repository: TicTacToeRepository) =
-        HandshakeUseCase(repository)
-
-    @Factory
     fun getMoveUseCase(repository: TicTacToeRepository) =
         MoveUseCase(repository)
-
-    @Factory
-    fun getConnectUseCase(repository: TicTacToeRepository) =
-        ConnectUseCase(repository)
 
     @Factory
     fun getWhoResponseUseCase(repository: TicTacToeRepository) =
@@ -46,8 +36,6 @@ class TicTacToeModule {
     @Factory
     fun getTicTacToeViewModel(
         randomTicTacToeUseCase: RandomTicTacToeUseCase,
-        connectUseCase: ConnectUseCase,
-        handshakeUseCase: HandshakeUseCase,
         moveUseCase: MoveUseCase,
         getTicTacToeUseCase: GetTicTacToeUseCase,
         getWhoResponseUseCase: GetWhoResponseUseCase,
@@ -55,8 +43,6 @@ class TicTacToeModule {
     ) =
         TicTacToeViewModel(
             randomTicTacToeUseCase,
-            connectUseCase,
-            handshakeUseCase,
             moveUseCase,
             getTicTacToeUseCase,
             getWhoResponseUseCase,

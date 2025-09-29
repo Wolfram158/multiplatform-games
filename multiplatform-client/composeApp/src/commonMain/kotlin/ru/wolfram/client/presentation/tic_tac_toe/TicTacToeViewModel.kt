@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import io.ktor.client.plugins.websocket.receiveDeserialized
 import io.ktor.client.plugins.websocket.sendSerialized
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -19,18 +20,14 @@ import ru.wolfram.client.domain.common.GameCreationResult
 import ru.wolfram.client.domain.tic_tac_toe.model.TicTacToeState
 import ru.wolfram.client.domain.tic_tac_toe.model.Who
 import ru.wolfram.client.domain.tic_tac_toe.model.WhoResponseState
-import ru.wolfram.client.domain.tic_tac_toe.usecase.ConnectUseCase
 import ru.wolfram.client.domain.tic_tac_toe.usecase.GetTicTacToeUseCase
 import ru.wolfram.client.domain.tic_tac_toe.usecase.GetWhoResponseUseCase
-import ru.wolfram.client.domain.tic_tac_toe.usecase.HandshakeUseCase
 import ru.wolfram.client.domain.tic_tac_toe.usecase.MoveUseCase
 import ru.wolfram.client.domain.tic_tac_toe.usecase.RandomTicTacToeUseCase
 import ru.wolfram.client.presentation.common.ActionHandler
 
 class TicTacToeViewModel(
     private val randomTicTacToeUseCase: RandomTicTacToeUseCase,
-    private val connectUseCase: ConnectUseCase,
-    private val handshakeUseCase: HandshakeUseCase,
     private val moveUseCase: MoveUseCase,
     private val getTicTacToeUseCase: GetTicTacToeUseCase,
     getWhoResponseUseCase: GetWhoResponseUseCase,
@@ -81,8 +78,6 @@ class TicTacToeViewModel(
         when (action) {
             is TicTacToeAction.MakeMove -> reduceMove(action)
             is TicTacToeAction.RandomGameKey -> reduceRandomGameKey(action)
-            is TicTacToeAction.Connect -> reduceConnect(action)
-            is TicTacToeAction.Handshake -> reduceHandshake(action)
         }
     }
 
@@ -102,20 +97,6 @@ class TicTacToeViewModel(
 
                 GameCreationResult.Initial -> {}
                 GameCreationResult.Progress -> {}
-            }
-        }
-    }
-
-    private fun reduceConnect(action: TicTacToeAction.Connect) {
-        viewModelScope.launch(ioDispatcher) {
-            connectUseCase(action.path)
-        }
-    }
-
-    private fun reduceHandshake(action: TicTacToeAction.Handshake) {
-        viewModelScope.launch(ioDispatcher) {
-            gameKey.update {
-                handshakeUseCase(action.name, action.desired)
             }
         }
     }

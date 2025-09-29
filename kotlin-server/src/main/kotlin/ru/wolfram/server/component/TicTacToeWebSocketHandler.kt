@@ -7,7 +7,6 @@ import org.springframework.web.socket.CloseStatus
 import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
 import org.springframework.web.socket.handler.TextWebSocketHandler
-import ru.wolfram.server.exception.RulesViolationException
 import ru.wolfram.server.exception.UnexpectedException
 import ru.wolfram.server.model.*
 import java.util.concurrent.ConcurrentHashMap
@@ -89,7 +88,7 @@ class TicTacToeWebSocketHandler : TextWebSocketHandler() {
 
                 is Message.Move -> {
                     val state = pathToGameState[path] ?: throw UnexpectedException("Unknown path $path")
-                    val nextState = getNextState(state, path, msg)
+                    val nextState = getNextState(state, path, msg) ?: return@withLock
                     pathToGameState[path] = nextState
                     val json = gson.toJson(nextState, TicTacToeState::class.java)
                     broadcast(path, TextMessage(json))
@@ -134,14 +133,14 @@ class TicTacToeWebSocketHandler : TextWebSocketHandler() {
         lock.unlock()
     }
 
-    private fun getNextState(state: TicTacToeState, path: String, move: Message.Move): TicTacToeState {
+    private fun getNextState(state: TicTacToeState, path: String, move: Message.Move): TicTacToeState? {
         if (state.state != State.PROGRESS ||
             move.x !in 0..2 ||
             move.y !in 0..2 ||
             state.cells[move.y][move.x] != Cell.EMPTY ||
             !isKeyValid(path, state.whoseMove, move.key)
         ) {
-            throw RulesViolationException()
+            return null // throw RulesViolationException()
         }
         val cell = state.whoseMove.toCell()
         val cells = state.cells.map { it.toMutableList() }
