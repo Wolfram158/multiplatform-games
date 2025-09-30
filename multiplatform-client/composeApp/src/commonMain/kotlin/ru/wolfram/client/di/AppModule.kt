@@ -57,5 +57,6 @@ class AppModule {
     fun getDispatcherIO(): CoroutineDispatcher = DispatcherIO().getDispatcher()
 
     @Factory(binds = [ApiService::class])
-    fun getApiService(httpClient: HttpClient) = ApiServiceImpl(httpClient)
+    fun getApiService(httpClient: HttpClient, dispatcher: CoroutineDispatcher) =
+        ApiServiceImpl(httpClient, dispatcher)
 }

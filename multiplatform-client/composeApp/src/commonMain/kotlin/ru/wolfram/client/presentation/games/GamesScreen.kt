@@ -36,14 +36,12 @@ import ru.wolfram.client.domain.games.model.Reason
 @Composable
 fun GamesScreen(
     gamesViewModel: GamesViewModel,
-    name: String,
-    key: String,
     onNewGameClick: (Label, Reason) -> Unit
 ) {
     val games = gamesViewModel.gamesState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        gamesViewModel.handleAction(GamesAction.GetGames(name, key, Locale.current.language))
+        gamesViewModel.handleAction(GamesAction.GetGames(Locale.current.language))
     }
 
     Scaffold(
@@ -60,11 +58,7 @@ fun GamesScreen(
                 is GamesResult.Failure -> {
                     Button(onClick = {
                         gamesViewModel.handleAction(
-                            GamesAction.GetGames(
-                                name,
-                                key,
-                                Locale.current.language
-                            )
+                            GamesAction.GetGames(Locale.current.language)
                         )
                     }) {
                         Text("Try again")

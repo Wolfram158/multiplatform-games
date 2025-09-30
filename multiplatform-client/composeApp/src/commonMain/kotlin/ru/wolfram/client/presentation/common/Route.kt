@@ -4,11 +4,11 @@ import kotlinx.serialization.Serializable
 
 sealed interface Route {
     @Serializable
-    object Auth : Route
+    data object Auth : Route
 
     @Serializable
-    data class Games(val name: String, val key: String) : Route
+    data object Games : Route
 
     @Serializable
-    data class TicTacToe(val name: String, val key: String) : Route
+    data object TicTacToe : Route
 }

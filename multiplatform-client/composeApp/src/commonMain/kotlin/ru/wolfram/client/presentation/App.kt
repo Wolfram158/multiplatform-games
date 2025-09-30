@@ -5,7 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import ru.wolfram.client.domain.games.model.Label
@@ -16,7 +15,6 @@ import ru.wolfram.client.presentation.games.GamesScreen
 import ru.wolfram.client.presentation.games.GamesViewModel
 import ru.wolfram.client.presentation.tic_tac_toe.TicTacToe
 import ru.wolfram.client.presentation.tic_tac_toe.TicTacToeViewModel
-import kotlin.jvm.JvmInline
 
 @Composable
 @Preview
@@ -30,7 +28,7 @@ fun App() {
                 AuthScreen(
                     authViewModel
                 ) { name, key ->
-                    navHostController.navigate(Route.Games(name, key)) {
+                    navHostController.navigate(Route.Games) {
                         popUpTo(Route.Auth) {
                             inclusive = true
                         }
@@ -39,40 +37,22 @@ fun App() {
             }
 
             composable<Route.Games> { entry ->
-                val games = entry.toRoute<Route.Games>()
-
                 val gamesViewModel = koinViewModel<GamesViewModel>()
 
-                GamesScreen(
-                    gamesViewModel,
-                    games.name,
-                    games.key
-                ) { label, reason ->
+                GamesScreen(gamesViewModel) { label, reason ->
                     when (label) {
                         Label.TIC_TAC_TOE -> {
-                            navHostController.navigate(Route.TicTacToe(games.name, games.key)) {}
+                            navHostController.navigate(Route.TicTacToe) {}
                         }
                     }
                 }
             }
 
-            composable<Route.TicTacToe> { entry ->
-                val session = entry.toRoute<Route.TicTacToe>()
-
+            composable<Route.TicTacToe> {
                 val ticTacToeViewModel = koinViewModel<TicTacToeViewModel>()
 
-                TicTacToe(
-                    ticTacToeViewModel,
-                    session.name,
-                    session.key
-                )
+                TicTacToe(ticTacToeViewModel)
             }
         }
     }
 }
-
-@JvmInline
-value class Name(val name: String)
-
-@JvmInline
-value class Key(val key: String)

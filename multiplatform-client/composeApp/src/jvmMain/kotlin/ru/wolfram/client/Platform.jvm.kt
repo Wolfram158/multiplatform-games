@@ -1,11 +1,16 @@
 package ru.wolfram.client
 
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.cio.CIO
-import io.ktor.client.engine.okhttp.OkHttp
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.swing.Swing
+import org.koin.core.module.Module
+import org.koin.dsl.module
+import ru.wolfram.client.data.common.DATA_STORE_FILE_NAME
+import ru.wolfram.client.data.common.createDataStore
+import java.io.File
 
 class JVMPlatform : Platform {
     override val name: String = "Java ${System.getProperty("java.version")}"
@@ -39,3 +44,13 @@ actual class Logger actual constructor() {
         println("$tag: $msg")
     }
 }
+
+actual val dataStoreModule: Module
+    get() = module { single { createDataStore() } }
+
+fun createDataStore(): DataStore<Preferences> = createDataStore(
+    producePath = {
+        val file = File(System.getProperty("java.io.tmpdir"), DATA_STORE_FILE_NAME)
+        file.absolutePath
+    }
+)
