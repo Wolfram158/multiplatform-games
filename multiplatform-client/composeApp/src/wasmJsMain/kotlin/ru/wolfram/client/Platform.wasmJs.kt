@@ -35,3 +35,6 @@ actual class Logger actual constructor() {
     actual fun log(tag: String, msg: String) {
     }
 }
+
+actual val dataStoreModule: Module
+    get() = TODO("Not yet implemented")

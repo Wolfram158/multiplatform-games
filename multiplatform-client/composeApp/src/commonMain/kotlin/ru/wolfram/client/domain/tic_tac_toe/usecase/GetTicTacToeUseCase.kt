@@ -9,9 +9,7 @@ class GetTicTacToeUseCase(
     private val repository: TicTacToeRepository
 ) {
     suspend operator fun invoke(
-        name: String,
-        path: String,
         desired: Who,
         callback: suspend (WhoResponseState.WhoResponse, DefaultClientWebSocketSession) -> Unit
-    ) = repository.getTicTacToe(name, path, desired, callback)
+    ) = repository.getTicTacToe(desired, callback)
 }

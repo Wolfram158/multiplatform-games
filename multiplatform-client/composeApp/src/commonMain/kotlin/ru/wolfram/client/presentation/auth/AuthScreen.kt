@@ -28,19 +28,19 @@ import ru.wolfram.client.domain.auth.model.UserCreationResult
 @Composable
 fun AuthScreen(
     authViewModel: AuthViewModel,
-    onSuccess: (String, String) -> Unit
+    onSuccess: () -> Unit
 ) {
     val auth = authViewModel.authState.collectAsStateWithLifecycle()
     val name = remember { mutableStateOf("") }
 
-    when (val res = auth.value) {
+    when (auth.value) {
         is UserCreationResult.Failure -> {
             name.value = "Failure!"
         }
 
         UserCreationResult.Initial -> {}
         is UserCreationResult.UserKey -> {
-            onSuccess(name.value, res.key)
+            onSuccess()
         }
 
         UserCreationResult.Progress -> {}

@@ -30,7 +30,7 @@ class GamesViewModel(
                 GamesResult.Progress
             }
             _gamesState.update {
-                getGamesUseCase(action.name, action.key, action.lang)
+                getGamesUseCase(action.lang)
             }
         }
     }

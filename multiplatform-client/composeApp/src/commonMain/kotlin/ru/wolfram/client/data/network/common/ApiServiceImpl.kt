@@ -12,16 +12,6 @@ import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.http.appendEncodedPathSegments
 import io.ktor.utils.io.InternalAPI
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.sync.Mutex
-import ru.wolfram.client.Logger
 import ru.wolfram.client.baseHttpUrl
 import ru.wolfram.client.data.mapper.toWhoResponse
 import ru.wolfram.client.data.network.auth.UserCreationResultDto
@@ -29,16 +19,13 @@ import ru.wolfram.client.data.network.games.GameDto
 import ru.wolfram.client.data.network.tic_tac_toe.MessageDto
 import ru.wolfram.client.data.network.tic_tac_toe.WhoDto
 import ru.wolfram.client.data.network.tic_tac_toe.WhoResponseDto
-import ru.wolfram.client.domain.tic_tac_toe.model.TicTacToeState
 import ru.wolfram.client.domain.tic_tac_toe.model.WhoResponseState
 import ru.wolfram.client.wsHost
 import ru.wolfram.client.wsPort
-import kotlin.concurrent.Volatile
 
 class ApiServiceImpl(
     private val httpClient: HttpClient
 ) : ApiService {
-    private val mtx = Mutex()
     override suspend fun getTicTacToe(
         name: String,
         path: String,
@@ -54,20 +41,6 @@ class ApiServiceImpl(
         val whoResponse = webSocket.receiveDeserialized<WhoResponseDto>()
         callback(whoResponse.toWhoResponse(), webSocket)
     }
-
-    override fun getWhoResponse(): StateFlow<WhoResponseDto?> {
-        return flow { emit(whoResponse) }.stateIn(
-            CoroutineScope(Job()),
-            SharingStarted.Lazily,
-            null
-        )
-    }
-
-    @Volatile
-    private var whoResponse: WhoResponseDto? = null
-    private val lastMove: ArrayDeque<Pair<Int, Int>> = ArrayDeque()
-
-    private lateinit var webSocket: DefaultClientWebSocketSession
 
     @OptIn(InternalAPI::class)
     override suspend fun auth(name: String, lang: String): UserCreationResultDto {
@@ -91,14 +64,6 @@ class ApiServiceImpl(
         }.body<List<GameDto>>()
     }
 
-    override suspend fun connect(path: String) {
-        webSocket = httpClient.webSocketSession(host = wsHost, port = wsPort) {
-            url {
-                appendEncodedPathSegments(TIC_TAC_TOE, path)
-            }
-        }
-    }
-
     override suspend fun randomTicTacToe(
         name: String,
         key: String
@@ -114,25 +79,6 @@ class ApiServiceImpl(
             parameter(KEY_QUERY, key)
         }.body<GameCreationResultDto>()
     }
-
-    override suspend fun handshake(name: String, desired: WhoDto): WhoResponseDto {
-        delay(5000)
-        webSocket.sendSerialized(MessageDto.FirstMessageDto(name, desired, "FirstMessage"))
-        return webSocket.receiveDeserialized<WhoResponseDto>()
-    }
-
-    private val movesChannel = Channel<Pair<Int, Int>>(99)
-
-    override suspend fun move(x: Int, y: Int) {
-        Logger().log("MOVE_CALLED", "$x $y")
-        movesChannel.send(Pair(x, y))
-    }
-//    override suspend fun move(x: Int, y: Int) {
-//            Logger().log("LAST_MOVE", "$x $y")
-//            mtx.lock()
-//            lastMove.add(Pair(x, y))
-//            mtx.unlock()
-//    }
 
     companion object {
         private const val ENTER = "enter"

@@ -2,6 +2,7 @@ package ru.wolfram.client
 
 import io.ktor.client.engine.HttpClientEngine
 import kotlinx.coroutines.CoroutineDispatcher
+import org.koin.core.module.Module
 
 interface Platform {
     val name: String
@@ -26,3 +27,5 @@ expect class DispatcherIO() {
 expect class Logger() {
     fun log(tag: String, msg: String)
 }
+
+expect val dataStoreModule: Module
