@@ -22,10 +22,12 @@ import ru.wolfram.client.domain.tic_tac_toe.model.State
 import ru.wolfram.client.domain.tic_tac_toe.model.TicTacToeState
 import ru.wolfram.client.domain.tic_tac_toe.model.Who
 import ru.wolfram.client.domain.tic_tac_toe.usecase.GetTicTacToeUseCase
+import ru.wolfram.client.domain.tic_tac_toe.usecase.LeaveUseCase
 import ru.wolfram.client.presentation.common.ActionHandler
 
 class TicTacToeViewModel(
     private val getTicTacToeUseCase: GetTicTacToeUseCase,
+    private val leaveUseCase: LeaveUseCase,
     private val ioDispatcher: CoroutineDispatcher
 ) : ActionHandler<TicTacToeAction>, ViewModel() {
     private val _ticTacToe = MutableStateFlow(TicTacToeState())
@@ -126,6 +128,16 @@ class TicTacToeViewModel(
                 }
             }
         }
+    }
+
+    override fun onCleared() {
+        viewModelScope.launch(ioDispatcher) {
+            try {
+                leaveUseCase()
+            } catch (_: Exception) {
+            }
+        }
+        super.onCleared()
     }
 
 }

@@ -41,10 +41,6 @@ fun TicTacToe(ticTacToeViewModel: TicTacToeViewModel, navHostController: NavHost
     val error = ticTacToeViewModel.error.collectAsState()
     val isDialogOpened = rememberSaveable { mutableStateOf(false) }
 
-    BackHandle {
-        isDialogOpened.value = true
-    }
-
     title.value = if (ticTacToe.value.state == State.INITIAL) {
         "Ожидание противника"
     } else if (ticTacToe.value.state == State.WIN_FAILURE) {
@@ -151,6 +147,9 @@ fun TicTacToe(ticTacToeViewModel: TicTacToeViewModel, navHostController: NavHost
                         }
                     }
                 }
+            }
+            BackHandle {
+                isDialogOpened.value = true
             }
         }
     }

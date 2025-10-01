@@ -12,4 +12,6 @@ interface TicTacToeRepository {
         desired: Who,
         callback: suspend (WhoResponseState.WhoResponse, DefaultClientWebSocketSession) -> Unit
     )
+
+    suspend fun leave()
 }

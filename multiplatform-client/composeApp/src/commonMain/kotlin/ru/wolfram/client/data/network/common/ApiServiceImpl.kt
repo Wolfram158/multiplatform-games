@@ -42,6 +42,22 @@ class ApiServiceImpl(
         callback(whoResponse.toWhoResponse(), webSocket)
     }
 
+    override suspend fun leave(name: String, key: String) {
+        httpClient.post(baseHttpUrl) {
+            url {
+                appendEncodedPathSegments(LEAVE)
+            }
+        }
+    }
+
+    override suspend fun leaveGameSession(name: String, key: String) {
+        httpClient.post(baseHttpUrl) {
+            url {
+                appendEncodedPathSegments(LEAVE_GAME_SESSION)
+            }
+        }
+    }
+
     @OptIn(InternalAPI::class)
     override suspend fun auth(name: String, lang: String): UserCreationResultDto {
         return httpClient.post(baseHttpUrl) {
@@ -83,6 +99,8 @@ class ApiServiceImpl(
     companion object {
         private const val ENTER = "enter"
         private const val GAMES = "games"
+        private const val LEAVE = "leave"
+        private const val LEAVE_GAME_SESSION = "leave-game-session"
         private const val RANDOM_TIC_TAC_TOE = "random-tic-tac-toe"
         private const val TIC_TAC_TOE = "tic-tac-toe"
         private const val NAME_QUERY = "name"

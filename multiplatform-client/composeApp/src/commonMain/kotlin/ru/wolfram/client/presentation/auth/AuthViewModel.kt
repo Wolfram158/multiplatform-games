@@ -7,8 +7,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import ru.wolfram.client.domain.auth.usecase.AuthUseCase
 import ru.wolfram.client.domain.auth.model.UserCreationResult
+import ru.wolfram.client.domain.auth.usecase.AuthUseCase
 import ru.wolfram.client.presentation.common.ActionHandler
 
 class AuthViewModel(

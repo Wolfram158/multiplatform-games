@@ -39,4 +39,19 @@ class GamesRepositoryImpl(
             GamesResult.Failure("Error occurred!")
         }
     }
+
+    override suspend fun leave() {
+        var varName: String? = null
+        var varKey: String? = null
+        dataStore.data.firstOrNull()?.let { prefs ->
+            varName = prefs[nameKey]
+            varKey = prefs[userKeyKey]
+        }
+        val key = varKey
+        val name = varName
+        if (name != null && key != null) {
+            apiService.leave(name, key)
+        }
+        throw RuntimeException("Unexpected behaviour when getting name or user key from DataStore")
+    }
 }

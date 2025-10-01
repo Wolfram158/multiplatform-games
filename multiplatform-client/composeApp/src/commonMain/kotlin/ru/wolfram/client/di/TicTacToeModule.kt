@@ -10,6 +10,7 @@ import ru.wolfram.client.data.network.common.ApiService
 import ru.wolfram.client.data.tic_tac_toe.TicTacToeRepositoryImpl
 import ru.wolfram.client.domain.tic_tac_toe.repository.TicTacToeRepository
 import ru.wolfram.client.domain.tic_tac_toe.usecase.GetTicTacToeUseCase
+import ru.wolfram.client.domain.tic_tac_toe.usecase.LeaveUseCase
 import ru.wolfram.client.presentation.tic_tac_toe.TicTacToeViewModel
 
 @Module
@@ -23,12 +24,18 @@ class TicTacToeModule {
         GetTicTacToeUseCase(repository)
 
     @Factory
+    fun getLeaveUseCase(repository: TicTacToeRepository) =
+        LeaveUseCase(repository)
+
+    @Factory
     fun getTicTacToeViewModel(
         getTicTacToeUseCase: GetTicTacToeUseCase,
+        leaveUseCase: LeaveUseCase,
         dispatcher: CoroutineDispatcher
     ) =
         TicTacToeViewModel(
             getTicTacToeUseCase,
+            leaveUseCase,
             dispatcher
         )
 }

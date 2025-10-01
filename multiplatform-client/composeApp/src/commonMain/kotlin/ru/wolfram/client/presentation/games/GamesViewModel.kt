@@ -9,10 +9,12 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.wolfram.client.domain.games.model.GamesResult
 import ru.wolfram.client.domain.games.usecase.GetGamesUseCase
+import ru.wolfram.client.domain.games.usecase.LeaveUseCase
 import ru.wolfram.client.presentation.common.ActionHandler
 
 class GamesViewModel(
     private val getGamesUseCase: GetGamesUseCase,
+    private val leaveUseCase: LeaveUseCase,
     private val ioDispatcher: CoroutineDispatcher
 ) : ActionHandler<GamesAction>, ViewModel() {
     private val _gamesState = MutableStateFlow<GamesResult>(GamesResult.Initial)
@@ -34,4 +36,13 @@ class GamesViewModel(
             }
         }
     }
+
+    override fun onCleared() {
+        viewModelScope.launch(ioDispatcher) {
+            leaveUseCase()
+        }
+        Thread.sleep(500)
+        super.onCleared()
+    }
+
 }

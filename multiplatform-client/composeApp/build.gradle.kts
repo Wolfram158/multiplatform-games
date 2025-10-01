@@ -76,6 +76,9 @@ kotlin {
             implementation(libs.androidx.datastore.preferences)
         }
         commonTest.dependencies {
+            @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
+            implementation(compose.uiTest)
+
             implementation(libs.kotlin.test)
         }
         jvmMain.dependencies {

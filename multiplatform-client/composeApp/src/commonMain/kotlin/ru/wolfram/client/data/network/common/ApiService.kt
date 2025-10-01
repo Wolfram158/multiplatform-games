@@ -20,4 +20,8 @@ interface ApiService {
         callback: suspend (WhoResponseState.WhoResponse, DefaultClientWebSocketSession) -> Unit
     )
 
+    suspend fun leave(name: String, key: String)
+
+    suspend fun leaveGameSession(name: String, key: String)
+
 }

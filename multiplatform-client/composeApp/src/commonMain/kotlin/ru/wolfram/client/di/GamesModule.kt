@@ -11,6 +11,7 @@ import ru.wolfram.client.data.games.GamesRepositoryImpl
 import ru.wolfram.client.data.network.common.ApiService
 import ru.wolfram.client.domain.games.repository.GamesRepository
 import ru.wolfram.client.domain.games.usecase.GetGamesUseCase
+import ru.wolfram.client.domain.games.usecase.LeaveUseCase
 import ru.wolfram.client.presentation.games.GamesViewModel
 
 @Module
@@ -22,9 +23,16 @@ class GamesModule {
     )
 
     @Factory
+    fun getLeaveUseCase(repository: GamesRepository) = LeaveUseCase(repository)
+
+    @Factory
     fun getGamesUseCase(repository: GamesRepository) = GetGamesUseCase(repository)
 
     @KoinViewModel
-    fun getGamesViewModel(getGamesUseCase: GetGamesUseCase, dispatcher: CoroutineDispatcher) =
-        GamesViewModel(getGamesUseCase, dispatcher)
+    fun getGamesViewModel(
+        getGamesUseCase: GetGamesUseCase,
+        leaveUseCase: LeaveUseCase,
+        dispatcher: CoroutineDispatcher
+    ) =
+        GamesViewModel(getGamesUseCase, leaveUseCase, dispatcher)
 }
