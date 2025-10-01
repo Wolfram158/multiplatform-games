@@ -14,10 +14,12 @@ import games.composeapp.generated.resources.circle
 import games.composeapp.generated.resources.close
 import org.jetbrains.compose.resources.vectorResource
 import ru.wolfram.client.domain.tic_tac_toe.model.Cell
+import ru.wolfram.client.domain.tic_tac_toe.model.State
 
 @Composable
 fun Cell(
     ticTacToeViewModel: TicTacToeViewModel,
+    state: State,
     isMove: Boolean,
     cells: List<List<Cell>>,
     size: Dp,
@@ -31,7 +33,7 @@ fun Cell(
         modifier = Modifier
             .size(size)
             .border(2.dp, Color.Black),
-        enabled = isMove
+        enabled = isMove || state == State.WIN_FAILURE || state == State.DRAW
     ) {
         if (cells[y][x] != Cell.EMPTY) {
             Icon(

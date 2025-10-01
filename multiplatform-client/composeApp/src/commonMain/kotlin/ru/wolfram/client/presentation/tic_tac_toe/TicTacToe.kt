@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import ru.wolfram.client.domain.tic_tac_toe.model.Error
 import ru.wolfram.client.domain.tic_tac_toe.model.State
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -28,17 +29,18 @@ fun TicTacToe(ticTacToeViewModel: TicTacToeViewModel) {
     val ticTacToe = ticTacToeViewModel.ticTacToe.collectAsState()
     val title = remember { mutableStateOf("") }
     val isMove = ticTacToeViewModel.isMove.collectAsState()
+    val error = ticTacToeViewModel.error.collectAsState()
 
-    if (ticTacToe.value.state == State.INITIAL) {
-        title.value = "Ожидание противника"
+    title.value = if (ticTacToe.value.state == State.INITIAL) {
+        "Ожидание противника"
     } else if (ticTacToe.value.state == State.WIN_FAILURE) {
-        title.value = "${ticTacToe.value.winner} одержал победу!"
+        "Игрок ${ticTacToe.value.winner} одержал победу!"
     } else if (ticTacToe.value.state == State.DRAW) {
-        title.value = "Никто не одержал победу!"
+        "Никто не одержал победу!"
     } else if (ticTacToeViewModel.side == ticTacToe.value.whoseMove) {
-        title.value = "Ваш ход!"
+        "Ваш ход!"
     } else {
-        title.value = "Ход противника!"
+        "Ход противника!"
     }
 
     Scaffold(
@@ -57,41 +59,45 @@ fun TicTacToe(ticTacToeViewModel: TicTacToeViewModel) {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (ticTacToe.value.cells.isNotEmpty()) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Cell(ticTacToeViewModel, isMove.value, ticTacToe.value.cells, size, 0, 0)
-                        Cell(ticTacToeViewModel, isMove.value, ticTacToe.value.cells, size, 1, 0)
-                        Cell(ticTacToeViewModel, isMove.value, ticTacToe.value.cells, size, 2, 0)
+                when (error.value) {
+                    Error.Empty -> {
+                        if (ticTacToe.value.cells.isNotEmpty()) {
+                            repeat(3) { y ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    repeat(3) { x ->
+                                        Cell(
+                                            ticTacToeViewModel,
+                                            ticTacToe.value.state,
+                                            isMove.value,
+                                            ticTacToe.value.cells,
+                                            size,
+                                            x,
+                                            y
+                                        )
+                                    }
+                                }
+                            }
+                        } else {
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                CircularProgressIndicator(modifier = Modifier.size(size))
+                            }
+                        }
                     }
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Cell(ticTacToeViewModel, isMove.value, ticTacToe.value.cells, size, 0, 1)
-                        Cell(ticTacToeViewModel, isMove.value, ticTacToe.value.cells, size, 1, 1)
-                        Cell(ticTacToeViewModel, isMove.value, ticTacToe.value.cells, size, 2, 1)
+
+                    Error.UnexpectedEnd -> {
+                        Error("Произошла ошибка при загрузке данных!", size)
                     }
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Cell(ticTacToeViewModel, isMove.value, ticTacToe.value.cells, size, 0, 2)
-                        Cell(ticTacToeViewModel, isMove.value, ticTacToe.value.cells, size, 1, 2)
-                        Cell(ticTacToeViewModel, isMove.value, ticTacToe.value.cells, size, 2, 2)
-                    }
-                } else {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        CircularProgressIndicator(modifier = Modifier.size(size))
+
+                    Error.OpponentNotFound -> {
+                        Error("Не удалось найти противника!", size)
                     }
                 }
             }
