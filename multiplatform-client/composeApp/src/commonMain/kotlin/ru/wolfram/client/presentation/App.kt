@@ -51,7 +51,7 @@ fun App() {
             composable<Route.TicTacToe> {
                 val ticTacToeViewModel = koinViewModel<TicTacToeViewModel>()
 
-                TicTacToe(ticTacToeViewModel)
+                TicTacToe(ticTacToeViewModel, navHostController)
             }
         }
     }

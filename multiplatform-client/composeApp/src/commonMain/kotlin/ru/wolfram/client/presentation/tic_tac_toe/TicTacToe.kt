@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -17,19 +19,31 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import games.composeapp.generated.resources.Res
+import games.composeapp.generated.resources.back
+import org.jetbrains.compose.resources.vectorResource
+import ru.wolfram.client.BackHandle
+import ru.wolfram.client.domain.common.isEnd
 import ru.wolfram.client.domain.tic_tac_toe.model.Error
 import ru.wolfram.client.domain.tic_tac_toe.model.State
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TicTacToe(ticTacToeViewModel: TicTacToeViewModel) {
+fun TicTacToe(ticTacToeViewModel: TicTacToeViewModel, navHostController: NavHostController) {
     val ticTacToe = ticTacToeViewModel.ticTacToe.collectAsState()
     val title = remember { mutableStateOf("") }
     val isMove = ticTacToeViewModel.isMove.collectAsState()
     val error = ticTacToeViewModel.error.collectAsState()
+    val isDialogOpened = rememberSaveable { mutableStateOf(false) }
+
+    BackHandle {
+        isDialogOpened.value = true
+    }
 
     title.value = if (ticTacToe.value.state == State.INITIAL) {
         "Ожидание противника"
@@ -43,9 +57,40 @@ fun TicTacToe(ticTacToeViewModel: TicTacToeViewModel) {
         "Ход противника!"
     }
 
+    if (isDialogOpened.value) {
+        BackDialog(
+            dialogTitle = "Вы уверены, что желаете завершить процесс досрочно?",
+            confirmButtonText = "Да",
+            dismissButtonText = "Нет",
+            onDismissRequest = {
+                isDialogOpened.value = false
+            },
+            onConfirmation = {
+                navHostController.popBackStack()
+            },
+        )
+    }
+
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text(title.value) })
+            TopAppBar(
+                title = { Text(title.value) },
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+                            if (!ticTacToe.value.isEnd()) {
+                                isDialogOpened.value = true
+                            }
+                        },
+                        enabled = !isDialogOpened.value
+                    ) {
+                        Icon(
+                            imageVector = vectorResource(Res.drawable.back),
+                            contentDescription = null
+                        )
+                    }
+                }
+            )
         }
     ) { it ->
         BoxWithConstraints(
@@ -97,7 +142,13 @@ fun TicTacToe(ticTacToeViewModel: TicTacToeViewModel) {
                     }
 
                     Error.OpponentNotFound -> {
-                        Error("Не удалось найти противника!", size)
+                        Error(
+                            "Не удалось найти противника!",
+                            size,
+                            retryText = "Попробовать снова"
+                        ) {
+                            ticTacToeViewModel.handleAction(TicTacToeAction.Retry)
+                        }
                     }
                 }
             }

@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 import ru.wolfram.client.data.mapper.toTicTacToeState
 import ru.wolfram.client.data.network.tic_tac_toe.MessageDto
 import ru.wolfram.client.data.network.tic_tac_toe.TicTacToeStateDto
+import ru.wolfram.client.domain.common.isEnd
 import ru.wolfram.client.domain.tic_tac_toe.model.Cell
 import ru.wolfram.client.domain.tic_tac_toe.model.Error
 import ru.wolfram.client.domain.tic_tac_toe.model.State
@@ -38,6 +39,33 @@ class TicTacToeViewModel(
     val error = _error.asStateFlow()
 
     init {
+        launchGame()
+    }
+
+    override fun handleAction(action: TicTacToeAction) {
+        when (action) {
+            is TicTacToeAction.MakeMove -> reduceMove(action)
+            TicTacToeAction.Retry -> reduceRetry()
+        }
+    }
+
+    private fun reduceMove(action: TicTacToeAction.MakeMove) {
+        viewModelScope.launch(ioDispatcher) {
+            _isMove.update {
+                false
+            }
+            move.emit(Pair(action.x, action.y))
+        }
+    }
+
+    private fun reduceRetry() {
+        _error.update {
+            Error.Empty
+        }
+        launchGame()
+    }
+
+    private fun launchGame() {
         viewModelScope.launch(ioDispatcher) {
             try {
                 getTicTacToeUseCase(side) { who, webSocket ->
@@ -65,7 +93,7 @@ class TicTacToeViewModel(
                         } catch (e: CancellationException) {
                             throw e
                         } catch (_: Exception) {
-                            if (ticTacToe.value.state != State.WIN_FAILURE && ticTacToe.value.state != State.DRAW) {
+                            if (!ticTacToe.value.isEnd()) {
                                 _error.update {
                                     Error.UnexpectedEnd
                                 }
@@ -97,22 +125,6 @@ class TicTacToeViewModel(
                     Error.OpponentNotFound
                 }
             }
-        }
-
-    }
-
-    override fun handleAction(action: TicTacToeAction) {
-        when (action) {
-            is TicTacToeAction.MakeMove -> reduceMove(action)
-        }
-    }
-
-    private fun reduceMove(action: TicTacToeAction.MakeMove) {
-        viewModelScope.launch(ioDispatcher) {
-            _isMove.update {
-                false
-            }
-            move.emit(Pair(action.x, action.y))
         }
     }
 

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,7 +23,7 @@ import games.composeapp.generated.resources.warn
 import org.jetbrains.compose.resources.vectorResource
 
 @Composable
-fun Error(text: String, size: Dp) {
+fun Error(text: String, size: Dp, retryText: String? = null, onRetry: (() -> Unit)? = null) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -41,5 +42,15 @@ fun Error(text: String, size: Dp) {
             textAlign = TextAlign.Center,
             fontSize = 24.sp
         )
+        retryText?.let {
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(
+                onClick = {
+                    onRetry?.invoke()
+                }
+            ) {
+                Text(retryText, fontSize = 24.sp, textAlign = TextAlign.Center)
+            }
+        }
     }
 }

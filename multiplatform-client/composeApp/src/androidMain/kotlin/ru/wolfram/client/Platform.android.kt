@@ -3,12 +3,20 @@ package ru.wolfram.client
 import android.content.Context
 import android.os.Build
 import android.util.Log
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.okhttp.OkHttp
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.android.awaitFrame
+import kotlinx.coroutines.launch
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.dsl.module
@@ -54,3 +62,21 @@ actual val dataStoreModule: Module
 fun createDataStore(context: Context): DataStore<Preferences> = createDataStore(
     producePath = { context.filesDir.resolve(DATA_STORE_FILE_NAME).absolutePath }
 )
+
+@Composable
+actual fun BackHandle(onBackHandle: () -> Unit) {
+    val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+    val customHandled = remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+
+    BackHandler(enabled = !customHandled.value) {
+        customHandled.value = true
+
+        coroutineScope.launch {
+            awaitFrame()
+            onBackPressedDispatcher?.onBackPressed()
+            onBackHandle()
+            customHandled.value = false
+        }
+    }
+}

@@ -33,7 +33,7 @@ fun Cell(
         modifier = Modifier
             .size(size)
             .border(2.dp, Color.Black),
-        enabled = isMove || state == State.WIN_FAILURE || state == State.DRAW
+        enabled = (isMove || state == State.WIN_FAILURE || state == State.DRAW) && cells[y][x] == Cell.EMPTY
     ) {
         if (cells[y][x] != Cell.EMPTY) {
             Icon(

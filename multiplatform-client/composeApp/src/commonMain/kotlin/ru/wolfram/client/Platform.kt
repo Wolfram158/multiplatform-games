@@ -1,5 +1,6 @@
 package ru.wolfram.client
 
+import androidx.compose.runtime.Composable
 import io.ktor.client.engine.HttpClientEngine
 import kotlinx.coroutines.CoroutineDispatcher
 import org.koin.core.module.Module
@@ -29,3 +30,6 @@ expect class Logger() {
 }
 
 expect val dataStoreModule: Module
+
+@Composable
+expect fun BackHandle(onBackHandle: () -> Unit)

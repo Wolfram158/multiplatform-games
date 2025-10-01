@@ -1,5 +1,6 @@
 package ru.wolfram.client
 
+import androidx.compose.runtime.Composable
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import io.ktor.client.engine.HttpClientEngine
@@ -54,3 +55,7 @@ fun createDataStore(): DataStore<Preferences> = createDataStore(
         file.absolutePath
     }
 )
+
+@Composable
+actual fun BackHandle(onBackHandle: () -> Unit) {
+}
