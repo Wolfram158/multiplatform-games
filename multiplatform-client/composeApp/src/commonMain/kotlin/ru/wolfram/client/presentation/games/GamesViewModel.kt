@@ -3,6 +3,8 @@ package ru.wolfram.client.presentation.games
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -37,11 +39,11 @@ class GamesViewModel(
         }
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     override fun onCleared() {
-        viewModelScope.launch(ioDispatcher) {
-            leaveUseCase()
+        GlobalScope.launch(ioDispatcher) {
+            runCatching { leaveUseCase() }
         }
-        Thread.sleep(500)
         super.onCleared()
     }
 

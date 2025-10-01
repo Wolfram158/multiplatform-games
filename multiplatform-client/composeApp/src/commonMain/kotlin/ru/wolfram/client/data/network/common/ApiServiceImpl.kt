@@ -47,6 +47,8 @@ class ApiServiceImpl(
             url {
                 appendEncodedPathSegments(LEAVE)
             }
+            parameter(NAME_QUERY, name)
+            parameter(KEY_QUERY, key)
         }
     }
 
@@ -55,6 +57,8 @@ class ApiServiceImpl(
             url {
                 appendEncodedPathSegments(LEAVE_GAME_SESSION)
             }
+            parameter(NAME_QUERY, name)
+            parameter(KEY_QUERY, key)
         }
     }
 
