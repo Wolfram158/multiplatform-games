@@ -46,4 +46,22 @@ class Pending {
             }
         }
     }
+
+    fun deleteUserIfExists(name: String) {
+        lock.lock()
+        if (users.contains(name)) {
+            users.removeIf {
+                it == name
+            }
+        }
+        lock.unlock()
+    }
+
+    fun isEmpty(): Boolean {
+        lock.lock()
+        val isEmpty = users.isEmpty()
+        println(users)
+        lock.unlock()
+        return isEmpty
+    }
 }

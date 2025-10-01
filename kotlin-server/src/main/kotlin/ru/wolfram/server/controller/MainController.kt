@@ -51,6 +51,7 @@ class MainController {
             users.remove(name)
             return ResponseEntity.ok("User has been removed successfully!")
         }
+        pending.deleteUserIfExists(name)
         return ResponseEntity
             .status(HttpStatus.UNAUTHORIZED)
             .body("Key is invalid or user does not exist!")
