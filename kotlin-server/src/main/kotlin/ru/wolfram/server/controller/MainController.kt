@@ -47,11 +47,25 @@ class MainController {
         @RequestParam key: String
     ): ResponseEntity<String> {
         if (users.contains(name) && userToKey[name] == key) {
+            pending.deleteUserIfExists(name)
             userToKey.remove(name)
             users.remove(name)
             return ResponseEntity.ok("User has been removed successfully!")
         }
-        pending.deleteUserIfExists(name)
+        return ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
+            .body("Key is invalid or user does not exist!")
+    }
+
+    @PostMapping(LEAVE_GAME_SESSION)
+    fun leaveGameSession(
+        @RequestParam name: String,
+        @RequestParam key: String
+    ): ResponseEntity<String> {
+        if (users.contains(name) && userToKey[name] == key) {
+            pending.deleteUserIfExists(name)
+            return ResponseEntity.ok("Success!")
+        }
         return ResponseEntity
             .status(HttpStatus.UNAUTHORIZED)
             .body("Key is invalid or user does not exist!")
@@ -124,5 +138,6 @@ class MainController {
         const val ENTER = "/enter"
         const val GAMES = "/games"
         const val LEAVE = "/leave"
+        const val LEAVE_GAME_SESSION = "/leave-game-session"
     }
 }
