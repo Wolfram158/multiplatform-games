@@ -259,13 +259,11 @@ class TicTacToeWebSocketHandler : TextWebSocketHandler() {
         }
 
         private fun List<State>.reduce(): State {
-            forEach {
-                if (it == State.WIN_FAILURE) {
-                    return State.WIN_FAILURE
-                }
-                if (it == State.DRAW) {
-                    return State.DRAW
-                }
+            if (contains(State.WIN_FAILURE)) {
+                return State.WIN_FAILURE
+            }
+            if (contains(State.DRAW)) {
+                return State.DRAW
             }
             return State.PROGRESS
         }

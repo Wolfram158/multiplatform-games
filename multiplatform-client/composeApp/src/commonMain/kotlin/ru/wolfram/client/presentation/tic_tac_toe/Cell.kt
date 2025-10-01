@@ -31,7 +31,7 @@ fun Cell(
         modifier = Modifier
             .size(size)
             .border(2.dp, Color.Black),
-        enabled = true
+        enabled = isMove
     ) {
         if (cells[y][x] != Cell.EMPTY) {
             Icon(
