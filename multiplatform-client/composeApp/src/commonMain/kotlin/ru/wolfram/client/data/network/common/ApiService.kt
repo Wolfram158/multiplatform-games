@@ -20,8 +20,14 @@ interface ApiService {
         callback: suspend (WhoResponseState.WhoResponse, DefaultClientWebSocketSession) -> Unit
     )
 
+    suspend fun newTicTacToe(name: String, key: String): GameCreationResultDto
+
     suspend fun leave(name: String, key: String)
 
+    suspend fun login(name: String, key: String): UserCreationResultDto
+
     suspend fun leaveGameSession(name: String, key: String)
+
+    suspend fun validateTicTacToe(name: String, key: String, path: String): Boolean
 
 }

@@ -1,4 +1,4 @@
-package ru.wolfram.client.presentation.tic_tac_toe
+package ru.wolfram.client.presentation.common
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,9 +23,15 @@ import games.composeapp.generated.resources.warn
 import org.jetbrains.compose.resources.vectorResource
 
 @Composable
-fun Error(text: String, size: Dp, retryText: String? = null, onRetry: (() -> Unit)? = null) {
+fun Error(
+    text: String,
+    size: Dp,
+    modifier: Modifier = Modifier,
+    retryText: String? = null,
+    onRetry: (() -> Unit)? = null
+) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier,
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

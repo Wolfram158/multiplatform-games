@@ -33,3 +33,5 @@ expect val dataStoreModule: Module
 
 @Composable
 expect fun BackHandle(onBackHandle: () -> Unit)
+
+expect val clipboardModule: Module

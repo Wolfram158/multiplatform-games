@@ -1,6 +1,7 @@
 package ru.wolfram.client.presentation.common
 
 import kotlinx.serialization.Serializable
+import ru.wolfram.client.domain.games.model.Reason
 
 sealed interface Route {
     @Serializable
@@ -10,5 +11,5 @@ sealed interface Route {
     data object Games : Route
 
     @Serializable
-    data object TicTacToe : Route
+    data class TicTacToe(val reason: Reason, val gameId: String? = null) : Route
 }

@@ -18,7 +18,7 @@ import ru.wolfram.client.domain.tic_tac_toe.model.State
 
 @Composable
 fun Cell(
-    ticTacToeViewModel: TicTacToeViewModel,
+    ticTacToeViewModel: AbstractTicTacToeViewModel,
     state: State,
     isMove: Boolean,
     cells: List<List<Cell>>,

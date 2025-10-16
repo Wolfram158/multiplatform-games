@@ -10,11 +10,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -23,7 +25,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.viewmodel.koinViewModel
 import ru.wolfram.client.domain.auth.model.UserCreationResult
+import ru.wolfram.client.presentation.common.Error
 
 @Composable
 fun AuthScreen(
@@ -31,19 +36,11 @@ fun AuthScreen(
     onSuccess: () -> Unit
 ) {
     val auth = authViewModel.authState.collectAsStateWithLifecycle()
+    val usedName = authViewModel.name.collectAsStateWithLifecycle()
     val name = remember { mutableStateOf("") }
 
-    when (auth.value) {
-        is UserCreationResult.Failure -> {
-            name.value = "Failure!"
-        }
-
-        UserCreationResult.Initial -> {}
-        is UserCreationResult.UserKey -> {
-            onSuccess()
-        }
-
-        UserCreationResult.Progress -> {}
+    LaunchedEffect(Unit) {
+        authViewModel.handleAction(AuthAction.GetAlreadyUsedName)
     }
 
     Box(
@@ -80,6 +77,54 @@ fun AuthScreen(
             ) {
                 Text(text = "Enter", fontSize = 20.sp, textAlign = TextAlign.Center)
             }
+            Spacer(modifier = Modifier.height(24.dp))
+            if (usedName.value != null) {
+                val name = usedName.value
+                if (name != null) {
+                    Button(
+                        onClick = {
+                            authViewModel.handleAction(AuthAction.Login)
+                        },
+                        modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp),
+                        enabled = auth.value !is UserCreationResult.Progress && auth.value !is UserCreationResult.UserKey
+                    ) {
+                        Text(
+                            text = "Попробовать войти как $name",
+                            fontSize = 20.sp,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(24.dp))
+            when (auth.value) {
+                is UserCreationResult.Failure -> {
+                    Error("Произошла ошибка!", 36.dp, modifier = Modifier.fillMaxWidth())
+                }
+
+                UserCreationResult.Initial -> {
+                }
+
+                is UserCreationResult.UserKey -> {
+                    onSuccess()
+                }
+
+                UserCreationResult.Progress -> {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+            }
         }
     }
+}
+
+@Composable
+@Preview
+private fun AuthScreenPreview() {
+    AuthScreen(koinViewModel<AuthViewModel>(), {})
 }

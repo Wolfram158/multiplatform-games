@@ -8,6 +8,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ru.wolfram.client.data.mapper.toTicTacToeState
 import ru.wolfram.client.data.network.tic_tac_toe.MessageDto
 import ru.wolfram.client.data.network.tic_tac_toe.TicTacToeStateDto
@@ -15,19 +16,21 @@ import ru.wolfram.client.domain.common.isEnd
 import ru.wolfram.client.domain.tic_tac_toe.model.Cell
 import ru.wolfram.client.domain.tic_tac_toe.model.Error
 import ru.wolfram.client.domain.tic_tac_toe.model.State
-import ru.wolfram.client.domain.tic_tac_toe.usecase.GetTicTacToeUseCase
+import ru.wolfram.client.domain.tic_tac_toe.usecase.CopyPathToClipboardUseCase
 import ru.wolfram.client.domain.tic_tac_toe.usecase.LeaveUseCase
+import ru.wolfram.client.domain.tic_tac_toe.usecase.NewTicTacToeUseCase
 import ru.wolfram.client.presentation.common.ActionHandler
 
-class TicTacToeViewModel(
-    private val getTicTacToeUseCase: GetTicTacToeUseCase,
+class NewTicTacToeViewModel(
+    private val newTicTacToeUseCase: NewTicTacToeUseCase,
     leaveUseCase: LeaveUseCase,
+    private val copyPathToClipboardUseCase: CopyPathToClipboardUseCase,
     private val ioDispatcher: CoroutineDispatcher
 ) : ActionHandler<TicTacToeAction>, AbstractTicTacToeViewModel(leaveUseCase, ioDispatcher) {
     override fun launchGame(path: String?) {
         viewModelScope.launch(ioDispatcher) {
             try {
-                getTicTacToeUseCase(side) { who, webSocket ->
+                newTicTacToeUseCase(side) { who, webSocket ->
                     viewModelScope.launch(ioDispatcher) {
                         side = who.who
                         _isMove.update {
@@ -93,6 +96,12 @@ class TicTacToeViewModel(
 
     init {
         launchGame()
+    }
+
+    suspend fun copyPathToClipboard(): Boolean {
+        return withContext(ioDispatcher) {
+            copyPathToClipboardUseCase()
+        }
     }
 
 }

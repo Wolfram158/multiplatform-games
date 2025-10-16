@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,20 +27,31 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import games.composeapp.generated.resources.Res
 import games.composeapp.generated.resources.back
+import games.composeapp.generated.resources.copy
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.vectorResource
 import ru.wolfram.client.BackHandle
 import ru.wolfram.client.domain.common.isEnd
+import ru.wolfram.client.domain.games.model.Reason
 import ru.wolfram.client.domain.tic_tac_toe.model.Error
 import ru.wolfram.client.domain.tic_tac_toe.model.State
+import ru.wolfram.client.presentation.common.Error
+import ru.wolfram.client.presentation.common.Route
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TicTacToe(ticTacToeViewModel: TicTacToeViewModel, navHostController: NavHostController) {
+fun TicTacToe(
+    ticTacToeViewModel: AbstractTicTacToeViewModel,
+    reason: Reason,
+    navHostController: NavHostController
+) {
     val ticTacToe = ticTacToeViewModel.ticTacToe.collectAsState()
     val title = remember { mutableStateOf("") }
     val isMove = ticTacToeViewModel.isMove.collectAsState()
     val error = ticTacToeViewModel.error.collectAsState()
     val isDialogOpened = rememberSaveable { mutableStateOf(false) }
+    val color = rememberSaveable { mutableStateOf(Color.BLACK) }
+    val scope = rememberCoroutineScope()
 
     title.value = if (ticTacToe.value.state == State.INITIAL) {
         "Ожидание противника"
@@ -84,6 +96,30 @@ fun TicTacToe(ticTacToeViewModel: TicTacToeViewModel, navHostController: NavHost
                             imageVector = vectorResource(Res.drawable.back),
                             contentDescription = null
                         )
+                    }
+                },
+                actions = {
+                    if (reason == Reason.NEW) {
+                        IconButton(onClick = {
+                            scope.launch {
+                                color.value =
+                                    if ((ticTacToeViewModel as NewTicTacToeViewModel).copyPathToClipboard()) {
+                                        Color.GREEN
+                                    } else {
+                                        Color.RED
+                                    }
+                            }
+                        }) {
+                            Icon(
+                                imageVector = vectorResource(Res.drawable.copy),
+                                contentDescription = null,
+                                tint = when (color.value) {
+                                    Color.BLACK -> androidx.compose.ui.graphics.Color.Black
+                                    Color.GREEN -> androidx.compose.ui.graphics.Color.Green
+                                    Color.RED -> androidx.compose.ui.graphics.Color.Red
+                                }
+                            )
+                        }
                     }
                 }
             )
@@ -134,13 +170,14 @@ fun TicTacToe(ticTacToeViewModel: TicTacToeViewModel, navHostController: NavHost
                     }
 
                     Error.UnexpectedEnd -> {
-                        Error("Произошла ошибка при загрузке данных!", size)
+                        Error("Произошла ошибка при загрузке данных!", size, Modifier.fillMaxSize())
                     }
 
                     Error.OpponentNotFound -> {
                         Error(
                             "Не удалось найти противника!",
                             size,
+                            Modifier.fillMaxSize(),
                             retryText = "Попробовать снова"
                         ) {
                             ticTacToeViewModel.handleAction(TicTacToeAction.Retry)
@@ -153,4 +190,8 @@ fun TicTacToe(ticTacToeViewModel: TicTacToeViewModel, navHostController: NavHost
             }
         }
     }
+}
+
+private enum class Color {
+    BLACK, GREEN, RED
 }

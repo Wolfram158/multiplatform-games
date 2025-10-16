@@ -11,6 +11,8 @@ import ru.wolfram.client.data.auth.AuthRepositoryImpl
 import ru.wolfram.client.data.network.common.ApiService
 import ru.wolfram.client.domain.auth.repository.AuthRepository
 import ru.wolfram.client.domain.auth.usecase.AuthUseCase
+import ru.wolfram.client.domain.auth.usecase.GetAlreadyUsedNameUseCase
+import ru.wolfram.client.domain.auth.usecase.LoginUseCase
 import ru.wolfram.client.presentation.auth.AuthViewModel
 
 @Module
@@ -24,7 +26,19 @@ class AuthModule {
     @Factory
     fun getAuthUseCase(repository: AuthRepository) = AuthUseCase(repository)
 
+    @Factory
+    fun getAlreadyUsedNameUseCase(repository: AuthRepository) =
+        GetAlreadyUsedNameUseCase(repository)
+
+    @Factory
+    fun getLoginUseCase(repository: AuthRepository) = LoginUseCase(repository)
+
     @KoinViewModel
-    fun getAuthViewModel(authUseCase: AuthUseCase, dispatcher: CoroutineDispatcher) =
-        AuthViewModel(authUseCase, dispatcher)
+    fun getAuthViewModel(
+        authUseCase: AuthUseCase,
+        getAlreadyUsedNameUseCase: GetAlreadyUsedNameUseCase,
+        loginUseCase: LoginUseCase,
+        dispatcher: CoroutineDispatcher
+    ) =
+        AuthViewModel(authUseCase, getAlreadyUsedNameUseCase, loginUseCase, dispatcher)
 }

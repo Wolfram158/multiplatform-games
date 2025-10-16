@@ -42,6 +42,22 @@ class ApiServiceImpl(
         callback(whoResponse.toWhoResponse(), webSocket)
     }
 
+    override suspend fun newTicTacToe(
+        name: String,
+        key: String
+    ): GameCreationResultDto {
+        return httpClient.get(baseHttpUrl) {
+            url {
+                appendEncodedPathSegments(NEW_TIC_TAC_TOE)
+            }
+            timeout {
+                socketTimeoutMillis = 60_000L
+            }
+            parameter(NAME_QUERY, name)
+            parameter(KEY_QUERY, key)
+        }.body<GameCreationResultDto>()
+    }
+
     override suspend fun leave(name: String, key: String) {
         httpClient.post(baseHttpUrl) {
             url {
@@ -52,6 +68,16 @@ class ApiServiceImpl(
         }
     }
 
+    override suspend fun login(name: String, key: String): UserCreationResultDto {
+        return httpClient.post(baseHttpUrl) {
+            url {
+                appendEncodedPathSegments(LOGIN)
+            }
+            parameter(NAME_QUERY, name)
+            parameter(KEY_QUERY, key)
+        }.body<UserCreationResultDto>()
+    }
+
     override suspend fun leaveGameSession(name: String, key: String) {
         httpClient.post(baseHttpUrl) {
             url {
@@ -60,6 +86,21 @@ class ApiServiceImpl(
             parameter(NAME_QUERY, name)
             parameter(KEY_QUERY, key)
         }
+    }
+
+    override suspend fun validateTicTacToe(
+        name: String,
+        key: String,
+        path: String
+    ): Boolean {
+        return httpClient.get(baseHttpUrl) {
+            url {
+                appendEncodedPathSegments(VALIDATE_TIC_TAC_TOE)
+            }
+            parameter(NAME_QUERY, name)
+            parameter(KEY_QUERY, key)
+            parameter(PATH_QUERY, path)
+        }.body<Boolean>()
     }
 
     @OptIn(InternalAPI::class)
@@ -104,11 +145,15 @@ class ApiServiceImpl(
         private const val ENTER = "enter"
         private const val GAMES = "games"
         private const val LEAVE = "leave"
+        private const val LOGIN = "login"
         private const val LEAVE_GAME_SESSION = "leave-game-session"
         private const val RANDOM_TIC_TAC_TOE = "random-tic-tac-toe"
+        private const val NEW_TIC_TAC_TOE = "new-tic-tac-toe"
         private const val TIC_TAC_TOE = "tic-tac-toe"
+        private const val VALIDATE_TIC_TAC_TOE = "validate-tic-tac-toe"
         private const val NAME_QUERY = "name"
         private const val KEY_QUERY = "key"
+        private const val PATH_QUERY = "path"
         private const val LANG_QUERY = "lang"
     }
 }

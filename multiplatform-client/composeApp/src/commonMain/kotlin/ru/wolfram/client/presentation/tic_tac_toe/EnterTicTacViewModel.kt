@@ -15,19 +15,19 @@ import ru.wolfram.client.domain.common.isEnd
 import ru.wolfram.client.domain.tic_tac_toe.model.Cell
 import ru.wolfram.client.domain.tic_tac_toe.model.Error
 import ru.wolfram.client.domain.tic_tac_toe.model.State
-import ru.wolfram.client.domain.tic_tac_toe.usecase.GetTicTacToeUseCase
+import ru.wolfram.client.domain.tic_tac_toe.usecase.EnterTicTacToeUseCase
 import ru.wolfram.client.domain.tic_tac_toe.usecase.LeaveUseCase
 import ru.wolfram.client.presentation.common.ActionHandler
 
-class TicTacToeViewModel(
-    private val getTicTacToeUseCase: GetTicTacToeUseCase,
+class EnterTicTacToeViewModel(
+    private val enterTicTacToeUseCase: EnterTicTacToeUseCase,
     leaveUseCase: LeaveUseCase,
     private val ioDispatcher: CoroutineDispatcher
 ) : ActionHandler<TicTacToeAction>, AbstractTicTacToeViewModel(leaveUseCase, ioDispatcher) {
     override fun launchGame(path: String?) {
         viewModelScope.launch(ioDispatcher) {
             try {
-                getTicTacToeUseCase(side) { who, webSocket ->
+                enterTicTacToeUseCase(path!!, side) { who, webSocket ->
                     viewModelScope.launch(ioDispatcher) {
                         side = who.who
                         _isMove.update {
@@ -91,8 +91,8 @@ class TicTacToeViewModel(
         }
     }
 
-    init {
-        launchGame()
+    fun launch(path: String) {
+        launchGame(path)
     }
 
 }

@@ -10,6 +10,10 @@ fun createDataStore(producePath: () -> String): DataStore<Preferences> =
         produceFile = { producePath().toPath() }
     )
 
+interface ClipboardManager {
+    fun copyToClipboard(text: String)
+}
+
 const val DATA_STORE_FILE_NAME = "storage.preferences_pb"
 const val NAME_KEY = "name"
 const val KEY_KEY = "key"

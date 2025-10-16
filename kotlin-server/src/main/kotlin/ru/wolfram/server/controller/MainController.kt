@@ -3,6 +3,7 @@ package ru.wolfram.server.controller
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.socket.WebSocketSession
 import ru.wolfram.server.model.Game
 import ru.wolfram.server.model.GameCreationResult
 import ru.wolfram.server.model.Label
@@ -15,7 +16,9 @@ import kotlin.uuid.Uuid
 @OptIn(ExperimentalUuidApi::class)
 @RestController
 @RequestMapping(MainController.PREFIX)
-class MainController {
+class MainController(
+    private val pathToSessions: HashMap<String, Set<WebSocketSession>>
+) {
     private val users = ConcurrentHashMap.newKeySet<String>()
     private val userToKey = ConcurrentHashMap<String, String>()
     private val pending = Pending()
@@ -83,6 +86,30 @@ class MainController {
         return ResponseEntity.ok(GameCreationResult.GameKey(name, Uuid.random().toString()))
     }
 
+    @PostMapping(LOGIN)
+    fun login(
+        @RequestParam name: String,
+        @RequestParam key: String
+    ): ResponseEntity<UserCreationResult> {
+        if (users.contains(name) && userToKey[name] != key) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(UserCreationResult.Failure("Key is invalid!"))
+        }
+        val key = if (users.contains(name)) {
+            userToKey[name]!!
+        } else {
+            if (users.add(name)) {
+                val k = Uuid.random().toString()
+                userToKey[name] = k
+                k
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(UserCreationResult.Failure("Error!"))
+            }
+        }
+        return ResponseEntity.ok(UserCreationResult.UserKey(name, key))
+    }
+
     @GetMapping(RANDOM_TIC_TAC_TOE)
     fun randomTicTacToe(
         @RequestParam name: String,
@@ -130,6 +157,15 @@ class MainController {
         }
     }
 
+    @GetMapping(VALIDATE_TIC_TAC_TOE)
+    fun validateTicTacToe(
+        @RequestParam name: String,
+        @RequestParam key: String,
+        @RequestParam path: String
+    ): Boolean {
+        return pathToSessions.containsKey("/tic-tac-toe/$path") && users.contains(name) && userToKey[name] == key
+    }
+
     companion object {
         const val PREFIX = "/api/v1"
         const val BASE_URL = "http://localhost:8080$PREFIX"
@@ -139,5 +175,7 @@ class MainController {
         const val GAMES = "/games"
         const val LEAVE = "/leave"
         const val LEAVE_GAME_SESSION = "/leave-game-session"
+        const val LOGIN = "/login"
+        const val VALIDATE_TIC_TAC_TOE = "/validate-tic-tac-toe"
     }
 }

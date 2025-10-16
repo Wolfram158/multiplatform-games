@@ -39,12 +39,4 @@ class GamesViewModel(
         }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
-    override fun onCleared() {
-        GlobalScope.launch(ioDispatcher) {
-            runCatching { leaveUseCase() }
-        }
-        super.onCleared()
-    }
-
 }

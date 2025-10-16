@@ -1,5 +1,6 @@
 package ru.wolfram.client
 
+import android.content.ClipData
 import android.content.Context
 import android.os.Build
 import android.util.Log
@@ -19,7 +20,9 @@ import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.launch
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
+import org.koin.dsl.bind
 import org.koin.dsl.module
+import ru.wolfram.client.data.common.ClipboardManager
 import ru.wolfram.client.data.common.DATA_STORE_FILE_NAME
 import ru.wolfram.client.data.common.createDataStore
 
@@ -80,3 +83,17 @@ actual fun BackHandle(onBackHandle: () -> Unit) {
         }
     }
 }
+
+actual val clipboardModule: Module
+    get() = module {
+        single {
+            object : ClipboardManager {
+                override fun copyToClipboard(text: String) {
+                    val clipboard =
+                        androidContext().getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                    val clip = ClipData.newPlainText("Copied Text", text)
+                    clipboard.setPrimaryClip(clip)
+                }
+            }
+        }.bind(ClipboardManager::class)
+    }

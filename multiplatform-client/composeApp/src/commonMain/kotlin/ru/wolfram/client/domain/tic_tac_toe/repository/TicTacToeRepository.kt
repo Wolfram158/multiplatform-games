@@ -14,4 +14,18 @@ interface TicTacToeRepository {
     )
 
     suspend fun leave()
+
+    suspend fun newTicTacToe(
+        desired: Who,
+        callback: suspend (WhoResponseState.WhoResponse, DefaultClientWebSocketSession) -> Unit
+    )
+
+    suspend fun copyPathToClipboard(): Boolean
+
+    suspend fun enterTicTacToe(
+        path: String,
+        desired: Who,
+        callback: suspend (WhoResponseState.WhoResponse, DefaultClientWebSocketSession) -> Unit
+    )
+
 }

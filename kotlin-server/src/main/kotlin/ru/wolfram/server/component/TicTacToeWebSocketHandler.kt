@@ -15,13 +15,14 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @Component
-class TicTacToeWebSocketHandler : TextWebSocketHandler() {
+class TicTacToeWebSocketHandler(
+    private val pathToSessions: HashMap<String, Set<WebSocketSession>>
+) : TextWebSocketHandler() {
     private val gson = Gson()
     private val kotlinxJson = Json {
         ignoreUnknownKeys = true
     }
     private val pathToUsersCount = HashMap<String, Int>()
-    private val pathToSessions = HashMap<String, Set<WebSocketSession>>()
     private val pathToGameState = HashMap<String, TicTacToeState>()
     private val pathToLock = ConcurrentHashMap<String, ReentrantLock>()
     private val pathToCrossName = HashMap<String, String>()
@@ -34,7 +35,7 @@ class TicTacToeWebSocketHandler : TextWebSocketHandler() {
         withLock(path) {
             val usersCount = pathToUsersCount.getOrDefault(path, 0)
             if (usersCount == 2) {
-                session.close()
+                //session.close()
                 return@withLock
             }
             val new = pathToSessions[path]?.toMutableSet() ?: mutableSetOf()

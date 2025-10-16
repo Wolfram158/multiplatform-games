@@ -9,8 +9,11 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import org.koin.core.module.Module
 import org.koin.dsl.module
+import ru.wolfram.client.data.common.ClipboardManager
 import ru.wolfram.client.data.common.DATA_STORE_FILE_NAME
 import ru.wolfram.client.data.common.createDataStore
+import java.awt.Toolkit
+import java.awt.datatransfer.StringSelection
 import java.io.File
 
 class JVMPlatform : Platform {
@@ -59,3 +62,16 @@ fun createDataStore(): DataStore<Preferences> = createDataStore(
 @Composable
 actual fun BackHandle(onBackHandle: () -> Unit) {
 }
+
+actual val clipboardModule: Module
+    get() = module {
+        single {
+            object : ClipboardManager {
+                override fun copyToClipboard(text: String) {
+                    val stringSelection = StringSelection(text)
+                    val clipboard = Toolkit.getDefaultToolkit().systemClipboard
+                    clipboard.setContents(stringSelection, null)
+                }
+            }
+        }
+    }
